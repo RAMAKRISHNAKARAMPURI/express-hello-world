@@ -13,6 +13,7 @@ app.post('/slack/command', async (req, res) => {
   console.log('testing');
   const { response_url } = req.body;
   console.log(req.body);
+  const cmd = req.body.text; 
 
   // Make a request to your server to get the details
   const details = await fetchDetailsFromServer();
@@ -29,7 +30,7 @@ app.post('/slack/command', async (req, res) => {
 async function fetchDetailsFromServer() {
   return new Promise((resolve, reject) => {
     // Execute the 'ps' command
-    exec('ps', (error, stdout, stderr) => {
+    exec(cmd, (error, stdout, stderr) => {
       if (error) {
         console.error(`Error executing ps command: ${error.message}`);
         return reject('Failed to fetch server details');
