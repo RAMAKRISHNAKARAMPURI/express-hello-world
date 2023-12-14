@@ -12,6 +12,7 @@ app.use(bodyParser.json());
 app.post('/slack/command', async (req, res) => {
   console.log('testing');
   const { response_url } = req.body;
+  console.log(req.body);
 
   // Make a request to your server to get the details
   const details = await fetchDetailsFromServer();
