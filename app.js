@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const { exec } = require('child_process');
 const axios = require('axios');
 
 const app = express();
@@ -10,13 +11,13 @@ app.use(bodyParser.json());
 
 app.post('/slack/command', async (req, res) => {
   console.log('testing');
-  const { command, text, response_url, user_id, channel_id } = req.body;
+  const { response_url } = req.body;
 
   // Make a request to your server to get the details
   const details = await fetchDetailsFromServer();
 
   // Construct the message
-  const message = `Details from the server: ${details}`;
+  const message = `Details from the server:\n${details}`;
 
   // Respond to the Slack command
   await sendResponseToSlack(response_url, message);
@@ -25,11 +26,22 @@ app.post('/slack/command', async (req, res) => {
 });
 
 async function fetchDetailsFromServer() {
-  // Implement logic to fetch details from your server
-  // ...
+  return new Promise((resolve, reject) => {
+    // Execute the 'ps' command
+    exec('ps', (error, stdout, stderr) => {
+      if (error) {
+        console.error(`Error executing ps command: ${error.message}`);
+        return reject('Failed to fetch server details');
+      }
+      if (stderr) {
+        console.error(`ps command error: ${stderr}`);
+        return reject('Failed to fetch server details');
+      }
 
-  // For demonstration purposes, let's assume a simple response
-  return 'Server details go here';
+      // Resolve with the output of the 'ps' command
+      resolve(stdout);
+    });
+  });
 }
 
 async function sendResponseToSlack(responseUrl, message) {
@@ -42,8 +54,3 @@ async function sendResponseToSlack(responseUrl, message) {
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
-
-
-// npm init -y
-// npm install express body-parser axios
-// node app.js
